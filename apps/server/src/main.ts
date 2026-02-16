@@ -53,27 +53,60 @@ function normalizeError(error: unknown): string {
 }
 
 function parseNexusSeed(value: string): Array<{ q: number; r: number; level: number }> {
-  const entries = value
-    .split(",")
-    .map((entry) => entry.trim())
-    .filter((entry) => entry.length > 0);
+  try {
+    const normalized = value.trim();
 
-  const parsed: Array<{ q: number; r: number; level: number }> = [];
-
-  for (const entry of entries) {
-    const [qRaw, rRaw, levelRaw] = entry.split(":");
-    const q = Number(qRaw);
-    const r = Number(rRaw);
-    const level = levelRaw ? Number(levelRaw) : 3;
-
-    if (!Number.isInteger(q) || !Number.isInteger(r) || !Number.isInteger(level) || level <= 0) {
-      throw new Error(`invalid NEXUS_COORDS entry '${entry}'`);
+    if (normalized.length === 0) {
+      return [];
     }
 
-    parsed.push({ q, r, level });
-  }
+    if (normalized.startsWith("[")) {
+      const parsedJson = JSON.parse(normalized) as Array<{
+        q?: unknown;
+        r?: unknown;
+        level?: unknown;
+      }>;
 
-  return parsed;
+      if (!Array.isArray(parsedJson)) {
+        throw new Error("NEXUS_COORDS JSON must be an array");
+      }
+
+      return parsedJson.map((entry, index) => {
+        const q = Number(entry.q);
+        const r = Number(entry.r);
+        const level = entry.level === undefined ? 3 : Number(entry.level);
+
+        if (!Number.isInteger(q) || !Number.isInteger(r) || !Number.isInteger(level) || level <= 0) {
+          throw new Error(`invalid NEXUS_COORDS JSON entry at index ${index}`);
+        }
+
+        return { q, r, level };
+      });
+    }
+
+    return normalized
+      .split(/[;,]/)
+      .map((entry) => entry.trim())
+      .filter((entry) => entry.length > 0)
+      .map((entry) => {
+        const [qRaw, rRaw, levelRaw] = entry.split(":");
+        const q = Number(qRaw);
+        const r = Number(rRaw);
+        const level = levelRaw ? Number(levelRaw) : 3;
+
+        if (!Number.isInteger(q) || !Number.isInteger(r) || !Number.isInteger(level) || level <= 0) {
+          throw new Error(`invalid NEXUS_COORDS entry '${entry}'`);
+        }
+
+        return { q, r, level };
+      });
+  } catch (error) {
+    console.error("Failed to parse NEXUS_COORDS, using empty array", {
+      error: normalizeError(error),
+    });
+
+    return [];
+  }
 }
 
 function createLogger(): SocketLogger {
