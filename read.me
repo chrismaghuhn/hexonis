@@ -1,0 +1,69 @@
+⬢ HEXONIS: Infinite Persistent Sandbox
+Hexonis ist ein massiv-multiplayer Online-Strategiespiel (PMOSS), das direkt im Browser läuft. Auf einer unendlichen, hexagonalen Karte kämpfen Spieler in Echtzeit um Territorien, verwalten Ressourcen-Entropie und gründen Allianzen, um die Vorherrschaft im Grid zu erlangen.
+
+🚀 Kern-Features
+Unendliches Spielfeld: Ein persistentes Hex-Grid, das prozedural gestreamt wird.
+
+Hybrid-Ökonomie: Ein komplexes System aus passiver Energie-Regeneration, Nexus-POI-Boosts und Kachel-Entropie (Integritätsverlust).
+
+Realtime Warfare: Ein Investment-basiertes Kampfsystem – Territorium wird durch ökonomische Überlegenheit und strategische Reparaturen gehalten.
+
+Social Dominance: Globales Echtzeit-Leaderboard und Allianz-System mit geteilten Boni.
+
+Anti-Cheat & Scale: Server-authoritative Logik mit Redis-basiertem Rate-Limiting und räumlicher Partitionierung (Chunking).
+
+🛠 Tech-Stack
+Das Projekt nutzt moderne Web-Technologien für maximale Performance bei minimaler Latenz:
+
+Frontend: PixiJS (WebGL/WebGPU Rendering) + React (UI Layer).
+
+Backend: Node.js (TypeScript) + Socket.io für Realtime-Pub/Sub.
+
+Storage: * Redis: Hot-State-Management, Spatial Indexing (Chunks) und Leaderboards (ZSET).
+
+PostgreSQL: Persistente Snapshots der Welt-Daten alle 5 Minuten.
+
+Infrastructure: Monorepo-Architektur, Docker-Compose, GitHub Actions (CI/CD).
+
+🏗 Architektur
+Das Spiel basiert auf einer autoritativen Server-Architektur. Der Client ist ein "dummer" Renderer, der Eingaben an den Server sendet. Der Server validiert Koordinaten via Axial Hex Math und berechnet State-Updates für alle betroffenen Spieler innerhalb eines räumlichen Chunks.
+
+🏁 Quick Start
+Voraussetzungen
+Docker & Docker Compose
+
+Node.js (v18+)
+
+Lokale Installation
+Repository klonen:
+
+Bash
+
+git clone https://github.com/chrismaghuhn/hexonis.git
+cd hexonis
+Umgebungsvariablen einrichten:
+
+Bash
+
+cp .env.example .env
+Stack via Docker starten:
+
+Bash
+
+docker-compose up -d
+Abhängigkeiten installieren & Entwicklungsserver starten:
+
+Bash
+
+npm install
+npm run dev
+Das Frontend ist nun unter http://localhost:5173 erreichbar, das Backend unter http://localhost:3001.
+
+📈 Roadmap (Woche 2-4)
+[ ] Fog of War: Verbergen von feindlichen Bewegungen außerhalb des Radars.
+
+[ ] Tech-Tree: Upgrades für schnellere Energie-Regeneration oder stärkere Kachel-Verteidigung.
+
+[ ] Discord Integration: Webhooks für Allianz-Benachrichtigungen und globale Events.
+
+Entwickelt von einem Solo-Gründer mit Fokus auf High-Performance Web-Gaming.

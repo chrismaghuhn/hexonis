@@ -1,0 +1,53 @@
+services:
+  redis:
+    image: redis:alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hexonis
+      POSTGRES_USER: hexonis
+      POSTGRES_PASSWORD: hexonis
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  hexonis-server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3001
+      REDIS_URL: redis://redis:6379
+      POSTGRES_URL: postgres://hexonis:hexonis@postgres:5432/hexonis
+      SOCKET_CORS_ORIGIN: ${SOCKET_CORS_ORIGIN:-*}
+      NEXUS_COORDS: ${NEXUS_COORDS:-0:0:4,20:-20:3}
+    ports:
+      - "3001:3001"
+
+volumes:
+  redis-data:
+  postgres-data:

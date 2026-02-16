@@ -1,0 +1,19 @@
+{
+  "name": "hexonis",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev:client": "npm run dev --workspace @hexonis/client",
+    "dev:server": "npm run dev --workspace @hexonis/server",
+    "typecheck:shared": "tsc -p packages/shared/tsconfig.json",
+    "typecheck:server": "tsc -p apps/server/tsconfig.json",
+    "typecheck:client": "tsc -p apps/client/tsconfig.json",
+    "typecheck": "npm run typecheck:shared && npm run typecheck:server && npm run typecheck:client",
+    "test:shared": "npm run test --workspace @hexonis/shared",
+    "test:server": "npm run test --workspace @hexonis/server"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
